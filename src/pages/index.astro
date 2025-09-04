@@ -1,0 +1,19 @@
+---
+import { Collections } from '../../pocketbase-types';
+import Card from '../components/Card.astro';
+import Layout from '../layouts/Layout.astro';
+import pb  from '../utils/pb';
+
+let listMaisons = await pb.collection(Collections.Maison).getFullList({
+	sort: '-created',
+});
+---
+
+<Layout >
+	<!-- Utiliser une grille pour afficher les Card -->
+	 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 mt-4 w-full max-w-full overflow-x-auto">
+		{listMaisons.map((maison) => (
+			<Card maison={maison} />
+		))}
+	</div>
+</Layout>

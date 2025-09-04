@@ -1,0 +1,84 @@
+---
+//An astro Page for adding a new maison
+import Layout from '../layouts/Layout.astro';
+import pb from '../utils/pb';
+
+export const prerender = false
+
+let formErrors = '';
+
+if(Astro.request.method === 'POST') {
+    const formData = await Astro.request.formData();
+    //validate form data
+    const nomMaison = formData.get('nomMaison');
+    const adresse = formData.get('adresse');
+    const prix = Number(formData.get('prix') ?? 0);
+    const surface = Number(formData.get('surface') ?? 0);
+    const nbChambres = Number(formData.get('nbChambres') ?? 0);
+    const nbSdb = Number(formData.get('nbSdb') ?? 0);
+    const image = formData.get('image');
+    const favori = formData.get('favori') === 'on';
+    if (!nomMaison || !adresse) {
+        formErrors = 'Nom de la maison et adresse sont requis.';
+    } else if (isNaN(prix) || isNaN(surface) || isNaN(nbChambres) || isNaN(nbSdb) || prix < 0 || surface < 0 || nbChambres < 0 || nbSdb < 0) {
+        formErrors = 'Les valeurs numériques doivent être des nombres positifs.';
+    } else if (image && !(image instanceof File)) {
+        formErrors = 'L\'image doit être un fichier valide.';
+    }
+    if(!formErrors){  
+        try {
+            await pb.collection('maison').create(formData);
+            return Astro.redirect('/');
+        } catch (error) {
+            console.error('Error creating maison:', error);
+        }
+    }
+}
+
+---
+
+<Layout>
+    {formErrors && <p style="color: red;">{formErrors}</p>}
+    <form method="post" action="/add" enctype="multipart/form-data" class="flex flex-col max-w-md mx-auto space-y-6">
+        <div class="flex flex-col space-y-2">
+            <label for="nomMaison" class="mb-1">Nom de la Maison:</label>
+            <input type="text" id="nomMaison" name="nomMaison" class="input px-2 py-1 border rounded" required /> 
+        </div>
+
+        <div class="flex flex-col space-y-2">
+            <label for="adresse" class="mb-1">Adresse:</label>
+            <input type="text" id="adresse" name="adresse" class="input px-2 py-1 border rounded" />
+        </div>
+
+        <div class="flex flex-col space-y-2">
+            <label for="prix" class="mb-1">Prix (€):</label>
+            <input type="number" id="prix" name="prix" class="input px-2 py-1 border rounded" min="0" step="1000"  />
+        </div>
+
+        <div class="flex flex-col space-y-2">
+            <label for="surface" class="mb-1">Surface (m²):</label>
+            <input type="number" id="surface" name="surface" class="input px-2 py-1 border rounded" min="0" step="0.1"  />
+        </div>
+        <div class="flex flex-col space-y-2">
+            <label for="nbChambres" class="mb-1">Nombre de chambres:</label>
+            <input type="number" id="nbChambres" name="nbChambres" class="input px-2 py-1 border rounded" min="0"  />
+        </div>
+        <div class="flex flex-col space-y-2">
+            <label for="nbSdb" class="mb-1">Nombre de salles de bains:</label>
+            <input type="number" id="nbSdb" name="nbSdb" class="input px-2 py-1 border rounded" min="0"  />
+        </div>
+
+        <fieldset class="flex flex-col space-y-2 border p-2 rounded">
+            <legend class="fieldset-legend">Image</legend>
+            <input type="file" id="image" class="file-input" name="image" accept="image/*" />
+            <label class="label">Max size 2MB</label>
+        </fieldset>
+        
+        <div class="flex items-center space-x-2">
+            <input type="checkbox" id="favori" name="favori" type="checkbox"/>
+            <label for="favori" class="mb-0">Favori</label>
+        </div>
+
+        <button type="submit" class="btn bg-secondary">Ajouter</button>
+    </form>
+</Layout>

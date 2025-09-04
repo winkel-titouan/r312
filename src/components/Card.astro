@@ -1,0 +1,27 @@
+---
+import { Collections } from "../../pocketbase-types";
+import PbImage from "../components/PbImage.astro";
+import type { MaisonRecord } from "../utils/pocketbase-types";
+interface Props {
+    maison: MaisonRecord;
+}
+const { maison } = Astro.props;
+console.log("maison", maison);
+---
+
+<!-- <h2>{maison.nomMaison}</h2>
+    <p>{maison.adresse}</p>
+
+     -->
+<div class="card bg-base-100 w-96 shadow-sm m-5">
+    <figure>
+        <PbImage record={maison} imageField="image" />
+    </figure>
+    <div class="card-body">
+        <h2 class="card-title">{maison.nomMaison}</h2>
+        <p>{maison.adresse}</p>
+        <div class="card-actions justify-end">
+            <button class="btn btn-primary">Plus d'infos</button>
+        </div>
+    </div>
+</div>

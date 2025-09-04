@@ -1,0 +1,21 @@
+---
+import pb  from '../utils/pb';
+import { Image } from "astro:assets";
+
+interface Props {
+    record: { [key: string]: any }; // The record containing the image
+    imageField: string; // The field name for the image in the record
+}
+
+const { record, imageField } = Astro.props;
+
+const imageURL = pb.files.getURL(record, record[imageField])
+---
+
+{imageURL && 
+    <Image
+        src={imageURL}
+        alt={record.nomMaison || 'Image'}
+        inferSize={true}
+    />
+}

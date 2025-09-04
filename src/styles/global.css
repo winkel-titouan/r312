@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+    themes: light --default, dark , myTheme;
+}
+
+@plugin "daisyui/theme" {
+  name: "myTheme";
+  default: false;
+  prefersdark: false;
+  color-scheme: "dark";
+  --color-base-100: oklch(27% 0.046 192.524);
+  --color-base-200: oklch(38% 0.063 188.416);
+  --color-base-300: oklch(43% 0.078 188.216);
+  --color-base-content: oklch(95% 0.051 180.801);
+  --color-primary: oklch(70% 0.04 256.788);
+  --color-primary-content: oklch(12% 0.042 264.695);
+  --color-secondary: oklch(74% 0.16 232.661);
+  --color-secondary-content: oklch(29% 0.066 243.157);
+  --color-accent: oklch(70% 0.183 293.541);
+  --color-accent-content: oklch(28% 0.141 291.089);
+  --color-neutral: oklch(38% 0.063 188.416);
+  --color-neutral-content: oklch(98% 0.014 180.72);
+  --color-info: oklch(70% 0.165 254.624);
+  --color-info-content: oklch(28% 0.091 267.935);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(26% 0.051 172.552);
+  --color-warning: oklch(85% 0.199 91.936);
+  --color-warning-content: oklch(28% 0.066 53.813);
+  --color-error: oklch(71% 0.194 13.428);
+  --color-error-content: oklch(27% 0.105 12.094);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+[data-theme="myTheme"] {
+  .my-btn {
+    background-color: #FF0000;
+    border-color: #1EA1F1;
+  }
+  .my-btn:hover {
+    background-color: #1C96E1;
+    border-color: #1C96E1;
+  }
+}
