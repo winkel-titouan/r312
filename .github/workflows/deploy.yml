@@ -1,4 +1,4 @@
-name: Deploy Astro SSR to VPS
+name: Deploy Astro SSR to VPS (Port 22150)
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
 
 env:
   NODE_VERSION: '20'
+  SSH_PORT: '22002'
   DEPLOY_FOLDER: '/var/www'
   CLIENT_FOLDER: '${{ env.DEPLOY_FOLDER }}/site-r312'
   SERVER_FOLDER: '${{ env.DEPLOY_FOLDER }}/server-r312'
@@ -45,48 +46,63 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Add VPS to known hosts
+    - name: Add VPS to known hosts with custom port
       run: |
         mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -p ${{ env.SSH_PORT }} -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
     - name: Deploy client files to VPS
       run: |
-        rsync -avz --delete dist/client/ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ env.CLIENT_FOLDER }}/
+        rsync -avz -e "ssh -p ${{ env.SSH_PORT }}" --delete dist/client/ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ env.CLIENT_FOLDER }}/
 
     - name: Deploy server files to VPS
       run: |
-        rsync -avz --delete dist/server/ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ env.SERVER_FOLDER }}/
+        rsync -avz -e "ssh -p ${{ env.SSH_PORT }}" --delete dist/server/ ${{ secrets.USER }}@${{ secrets.HOST }}:${{ env.SERVER_FOLDER }}/
 
     - name: Install dependencies on VPS
       run: |
-        ssh ${{ secrets.USER }}@${{ secrets.HOST }} "
+        ssh -p ${{ env.SSH_PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} "
           cd ${{ env.SERVER_FOLDER }} &&
           npm ci --production
         "
 
     - name: Stop previous server instance
       run: |
-        ssh ${{ secrets.USER }}@${{ secrets.HOST }} "
+        ssh -p ${{ env.SSH_PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} "
           cd ${{ env.SERVER_FOLDER }} &&
-          pm2 delete r312-app 2>/dev/null || true
+          pm2 delete my-astro-app 2>/dev/null || true
         "
 
     - name: Start/Restart Node.js server with PM2
       run: |
-        ssh ${{ secrets.USER }}@${{ secrets.HOST }} "
+        ssh -p ${{ env.SSH_PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} "
           cd ${{ env.SERVER_FOLDER }} &&
-          pm2 start ${{ env.SERVER_ENTRY }} --name r312-app &&
+          pm2 start ${{ env.SERVER_ENTRY }} --name my-astro-app &&
           pm2 save
         "
 
     - name: Verify deployment
       run: |
-        ssh ${{ secrets.USER }}@${{ secrets.HOST }} "
-          echo 'Client files:'
+        ssh -p ${{ env.SSH_PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} "
+          echo '=== Client files ==='
           ls -la ${{ env.CLIENT_FOLDER }}/
-          echo 'Server files:'
+          echo '=== Server files ==='
           ls -la ${{ env.SERVER_FOLDER }}/
-          echo 'PM2 status:'
+          echo '=== PM2 status ==='
           pm2 status
+          echo '=== Process listening on ports ==='
+          sudo netstat -tulpn | grep :3000 || true
+        "
+
+    - name: Test server accessibility
+      run: |
+        echo "Testing server connection on port ${{ env.SSH_PORT }}..."
+        ssh -p ${{ env.SSH_PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} "
+          echo 'SSH connection successful!'
+          echo 'Node.js version:'
+          node --version
+          echo 'npm version:'
+          npm --version
+          echo 'PM2 version:'
+          pm2 --version
         "
