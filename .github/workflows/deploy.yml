@@ -35,6 +35,19 @@ jobs:
         target: "/var/www/r312/"
         strip_components: 1
         rm: false
+        overwrite: true
         debug: true
+    - name: Install production dependencies on VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22002
+        script: |
+          cd /var/www/r312/server
+          npm ci
+          npm install send server-destroy
+          
     - name: run the server
-      run: node /var/www/r312/server/entry.mjs
+      run: pm2 start /var/www/r312/server/entry.mjs
