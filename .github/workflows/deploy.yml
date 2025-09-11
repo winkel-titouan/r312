@@ -31,9 +31,10 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22002
-        source: "/home/runner/work/bassil/bassil/dist/*"
-        target: "/var/www/r312"
+        source: "dist/*"
+        target: "/var/www/r312/"
         strip_components: 1
         rm: true
+        debug: true
     - name: run the server
       run: pm2 /var/www/r312/server/entry.mjs
