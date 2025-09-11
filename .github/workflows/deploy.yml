@@ -37,4 +37,4 @@ jobs:
         rm: false
         debug: true
     - name: run the server
-      run: pm2 /var/www/r312/server/entry.mjs
+      run: node /var/www/r312/server/entry.mjs
