@@ -24,17 +24,15 @@ jobs:
     - name: Build project
       run: npm run build
 
-    - name: Deploy to VPS via SCP
-      uses: appleboy/scp-action@v0.1.3
+    - name: Deploy with RSync
+      uses: burnett01/rsync-deployments@6.0.0
       with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22002
-        source: "/home/runner/work/bassil/bassil/dist/*"
-        target: "/var/www/r312/"
-        strip_components: 1
-        rm: true
-        debug: true
+        switches: -avzr --delete
+        path: dist/
+        remote_path: /var/www/r312/
+        remote_host: ${{ secrets.HOST }}
+        remote_user: ${{ secrets.USER }}
+        remote_port: 22002
+        remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: run the server
       run: pm2 /var/www/r312/server/entry.mjs
