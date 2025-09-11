@@ -31,7 +31,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22002
-        source: "dist/client/index.html"
+        source: "dist/*"
         target: "/var/www/r312/"
         strip_components: 1
         rm: false
