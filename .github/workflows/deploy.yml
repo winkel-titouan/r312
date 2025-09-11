@@ -48,6 +48,4 @@ jobs:
           cd /var/www/r312/server
           npm ci
           npm install send server-destroy
-          
-    - name: run the server
-      run: pm2 start /var/www/r312/server/entry.mjs
+          pm2 start entry.mjs
