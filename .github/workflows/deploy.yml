@@ -35,6 +35,7 @@ jobs:
        rm: false
        overwrite: true
        debug: true
+       
    - name: Install production dependencies on VPS
      uses: appleboy/ssh-action@v1.0.0
      with:
